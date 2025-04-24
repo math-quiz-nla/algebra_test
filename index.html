@@ -2,48 +2,104 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Redirecting to Introduction</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap&subset=latin&display=swap" rel="stylesheet">
-  <script>
-    window.location.replace("Introduction.html");
-  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Introduction</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <style>
     :root {
       --primary: #27ae60;
-      --primary-dark: #219150;
-      --bg: #f4f6f9;
-      --card: #fff;
-      --shadow: 0 4px 14px rgba(0,0,0,0.08);
+      --bg: #ffffff;
+      --card: #e8fdf0;
+      --shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
     }
-    * { box-sizing: border-box }
+    * {
+      box-sizing: border-box;
+    }
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: "Inter", sans-serif;
       margin: 0;
       padding: 2rem;
       background: var(--bg);
       color: #333;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
     }
-    p {
-      font-size: 1.2rem;
-      max-width: 480px;
+    header {
       text-align: center;
+      margin-bottom: 2rem;
     }
-    a {
+    header img {
+      height: 100px;
+    }
+    .logo-divider {
+      height: 4px;
+      background-color: var(--primary);
+      margin: 1rem auto;
+      width: 100%;
+    }
+    .header-text h1 {
+      margin: 0;
+      font-size: 1.5rem;
       color: var(--primary);
-      font-weight: 600;
+    }
+    .content {
+      max-width: 800px;
+      margin: auto;
+      background: var(--card);
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: var(--shadow);
+      line-height: 1.6;
+      font-size: 1.05rem;
+    }
+    .start-button {
+      display: block;
+      width: 200px;
+      margin: 2rem auto 0;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 0.75rem;
+      text-align: center;
       text-decoration: none;
+      font-weight: 600;
+      box-shadow: var(--shadow);
+      transition: background 0.2s;
+    }
+    .start-button:hover {
+      background: #219150;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #111827;
+        --card: #1f2937;
+        --shadow: none;
+      }
+      body {
+        color: #e5e7eb;
+      }
     }
   </style>
 </head>
 <body>
-  <noscript>
-    <p>JavaScript is required. <a href="Introduction.html">Click here to go to the Introduction page</a>.</p>
-  </noscript>
+  <header>
+    <img src="nla-logo.png" alt="NLA University College Logo" />
+    <div class="logo-divider"></div>
+    </header>
+
+  <div class="content">
+    <h1>Introduction to Algebra Knowledge Test</h1>
+    <p>Welcome to the page where you can test your algebra knowledge. The goal of this test is to help you assess whether you have the necessary background knowledge required for courses like mathematics for economics.</p>
+
+    <p>If the test results show low skill levels, a pre-course in mathematics is recommended before taking such courses.</p>
+
+    <p>The test consists of 11 categories, each with five multiple choice questions. You can start the test by selecting any category. Answer all the questions and save your responses. Use the navigation buttons to move between categories. Unanswered questions will be marked as incorrect in the final score.</p>
+
+    <p>At the end, a report will be generated showing your total score out of 55 and your skill level in each category. Results will be presented as a radar chart or a bar chart. Links to Khan Academy materials for each category will be provided to help improve your skills.</p>
+
+    <p>This page was developed with the assistance of AI tools.</p>
+
+    <a href="topics.html" class="start-button">Start the test</a>
+  </div>
 </body>
 </html>
