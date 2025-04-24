@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Algebra Knowledge Test</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #27ae60;
+      --primary-dark: #219150;
+      --bg: #f4f6f9;
+      --card: #fff;
+      --shadow: 0 4px 14px rgba(0,0,0,0.08);
+    }
+    * { box-sizing: border-box }
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 2rem;
+      background: var(--bg);
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .topics-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .topic-button {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      text-align: center;
+      text-decoration: none;
+      display: block;
+      width: 100%;
+      box-shadow: var(--shadow);
+    }
+    .topic-button:hover {
+      background: var(--primary-dark);
+    }
+    @media (max-width: 768px) {
+      .topics-container {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 480px) {
+      .topics-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Algebra Knowledge Test</h1>
+  <p style="text-align: center; margin-bottom: 2rem;">Select a category to begin your test:</p>
+  
+  <div class="topics-container">
+    <a href="category.html?category=number_system" class="topic-button">Number System</a>
+    <a href="category.html?category=fractions" class="topic-button">Fractions</a>
+    <a href="category.html?category=percentages" class="topic-button">Percentages</a>
+    <a href="category.html?category=order_operations" class="topic-button">Order of Operations</a>
+    <a href="category.html?category=parenthesis" class="topic-button">Working with Parentheses</a>
+    <a href="category.html?category=coordinate_system" class="topic-button">Coordinate System</a>
+    <a href="category.html?category=exponents" class="topic-button">Exponents</a>
+    <a href="category.html?category=radicals" class="topic-button">Radicals</a>
+    <a href="category.html?category=expressions" class="topic-button">Simplifying Expressions</a>
+    <a href="category.html?category=factorization" class="topic-button">Factorization</a>
+    <a href="category.html?category=logarithms" class="topic-button">Logarithms</a>
+  </div>
+</body>
+</html>
