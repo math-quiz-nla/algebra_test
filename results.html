@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz Results</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #27ae60;
+      --bg: #f4f6f9;
+      --card: #fff;
+      --shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: "Inter", sans-serif;
+      margin: 0;
+      padding: 2rem;
+      background: var(--bg);
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      max-width: 800px;
+      margin: auto;
+    }
+    .scale {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .scale div {
+      flex: 1 0 100px;
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.5rem;
+      color: #fff;
+      font-size: 0.85rem;
+      text-align: center;
+    }
+    .low {
+      background: #e74c3c;
+    }
+    .basic {
+      background: #f39c12;
+    }
+    .intermediate {
+      background: #27ae60;
+    }
+    .advanced {
+      background: #2980b9;
+    }
+    .expert {
+      background: #8e44ad;
+    }
+    canvas {
+      background: var(--card);
+      border-radius: 1rem;
+      box-shadow: var(--shadow);
+      padding: 1rem;
+    }
+    #bar {
+      display: none;
+    }
+    .score-badge {
+      text-align: center;
+      font-weight: 600;
+      font-size: 1.125rem;
+    }
+    .chart-toggle {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .chart-toggle button {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .chart-toggle button:hover {
+      background: #219150;
+    }
+    @media (max-width: 480px) {
+      #radar {
+        display: none !important;
+      }
+      #bar {
+        display: block;
+      }
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #111827;
+        --card: #1f2937;
+        --shadow: none;
+      }
+      body {
+        color: #e5e7eb;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Your Test Results</h1>
+	<div class="score-badge">
+      Total Score: <span id="total-score"></span>/55
+    </div>
+  <div class="wrapper">
+    <div class="scale">
+      <div class="low">0‑10 Novice</div>
+      <div class="basic">11‑22 Basic</div>
+      <div class="intermediate">23‑34 Intermediate</div>
+      <div class="advanced">35‑45 Advanced</div>
+      <div class="expert">46‑55 Expert</div>
+    </div>
+    <div class="chart-toggle">
+      <button onclick="showRadarChart()">Radar Chart</button>
+      <button onclick="showBarChart()">Bar Chart</button>
+    </div>
+    <canvas id="radar" height="350"></canvas>
+    <canvas id="bar" height="350"></canvas>
+    <div id="weak-categories"></div>
+  </div>
+  <script>
+     const categories = ["number_system", "fractions", "percentages", "order_operations", "parenthesis", "coordinate_system", "exponents", "radicals", "expressions", "factorization", "logarithms"];
+  const scores = categories.map(category => parseInt(localStorage.getItem(category) || 0));
+  const totalScore = scores.reduce((acc, score) => acc + score, 0);
+  document.getElementById("total-score").textContent = totalScore;
+
+  const radarCtx = document.getElementById("radar").getContext("2d");
+  const barCtx = document.getElementById("bar").getContext("2d");
+
+  // Determine color based on total score
+  let color, bgColor;
+  if (totalScore <= 10) {
+    color = 'rgba(231, 76, 60, 1)';
+    bgColor = 'rgba(231, 76, 60, 0.2)';
+  } else if (totalScore <= 22) {
+    color = 'rgba(243, 156, 18, 1)';
+    bgColor = 'rgba(243, 156, 18, 0.2)';
+  } else if (totalScore <= 34) {
+    color = 'rgba(39, 174, 96, 1)';
+    bgColor = 'rgba(39, 174, 96, 0.2)';
+  } else if (totalScore <= 45) {
+    color = 'rgba(41, 128, 185, 1)';
+    bgColor = 'rgba(41, 128, 185, 0.2)';
+  } else {
+    color = 'rgba(142, 68, 173, 1)';
+    bgColor = 'rgba(142, 68, 173, 0.2)';
+  }
+
+const getColor = (score, alpha = 1) => {
+  if (score <= 10) return `rgba(231, 76, 60, ${alpha})`;      // Novice
+  if (score <= 22) return `rgba(243, 156, 18, ${alpha})`;     // Basic
+  if (score <= 34) return `rgba(39, 174, 96, ${alpha})`;      // Intermediate
+  if (score <= 45) return `rgba(41, 128, 185, ${alpha})`;     // Advanced
+  return `rgba(142, 68, 173, ${alpha})`;                      // Expert
+};
+
+const radarChart = new Chart(radarCtx, {
+  type: 'radar',
+  data: {
+    labels: categories.map(cat => cat.replace("_", " ")),
+    datasets: [{
+      label: 'Quiz Scores',
+      data: scores,
+      fill: false,
+      pointBackgroundColor: scores.map(score => getColor(score)),
+      pointBorderColor: scores.map(score => getColor(score)),
+      pointHoverBackgroundColor: scores.map(score => getColor(score)),
+      pointHoverBorderColor: scores.map(score => getColor(score)),
+      borderColor: '#ccc',
+      borderWidth: 1
+    }]
+  },
+  options: {
+  scales: {
+    r: {
+      suggestedMin: 0,
+      suggestedMax: 14,
+      pointLabels: {
+        font: {
+          size: 14 // or increase to 16, 18 as needed
+        }
+      },
+      ticks: {
+        backdropColor: 'transparent',
+        font: {
+          size: 12
+        }
+      }
+    }
+  }
+}
+
+});
+
+ const getBarColor = (score) => {
+  if (score <= 10) return 'rgba(231, 76, 60, 0.6)';     // Novice
+  if (score <= 22) return 'rgba(243, 156, 18, 0.6)';     // Basic
+  if (score <= 34) return 'rgba(39, 174, 96, 0.6)';      // Intermediate
+  if (score <= 45) return 'rgba(41, 128, 185, 0.6)';     // Advanced
+  return 'rgba(142, 68, 173, 0.6)';                      // Expert
+};
+
+const getBarBorderColor = (score) => {
+  if (score <= 10) return 'rgba(231, 76, 60, 1)';
+  if (score <= 22) return 'rgba(243, 156, 18, 1)';
+  if (score <= 34) return 'rgba(39, 174, 96, 1)';
+  if (score <= 45) return 'rgba(41, 128, 185, 1)';
+  return 'rgba(142, 68, 173, 1)';
+};
+
+const barChart = new Chart(barCtx, {
+  type: 'bar',
+  data: {
+    labels: categories.map(cat => cat.replace("_", " ")),
+    datasets: [{
+      label: 'Quiz Scores',
+      data: scores,
+      backgroundColor: scores.map(score => getBarColor(score)),
+      borderColor: scores.map(score => getBarBorderColor(score)),
+      borderWidth: 1
+    }]
+  },
+  options: {
+    scales: {
+      y: {
+        beginAtZero: true,
+        suggestedMax: 5,
+        ticks: {
+          stepSize: 1,
+          font: {
+            size: 12
+          }
+        }
+      }
+    },
+    plugins: {
+      legend: {
+        labels: {
+          font: {
+            size: 14
+          }
+        }
+      }
+    }
+  }
+});
+
+
+
+  function showRadarChart() {
+    document.getElementById('radar').style.display = 'block';
+    document.getElementById('bar').style.display = 'none';
+  }
+
+  function showBarChart() {
+    document.getElementById('radar').style.display = 'none';
+    document.getElementById('bar').style.display = 'block';
+  }
+
+  // Show radar by default
+  showRadarChart();
+
+  // Suggest resources
+  const weakCategories = categories.filter((cat, index) => scores[index] < 3);
+  const weakLinks = weakCategories.map(cat => `<a href="https://www.khanacademy.org/search?page_search_query=${cat.replace("_", " ")}">${cat.replace("_", " ")}</a>`).join("<br>");
+  document.getElementById("weak-categories").innerHTML = `<h2>Resources to Improve Your Skills</h2>${weakLinks}`;
+</script>
+</body>
+</html>

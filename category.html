@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test – Category</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #27ae60;
+      --primary-light: #d5f5e3; /* lighter version for cards */
+      --primary-dark: #219150;
+      --bg: #ffffff; /* changed to white */
+      --card: rgba(255, 255, 255, 0.8); /* semi-transparent white */
+      --shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: "Inter", sans-serif;
+      margin: 0;
+      padding: 2rem;
+      background: var(--bg);
+      color: #333;
+    }
+    h1 {
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    /* grid wrapper */
+    #quiz-container {
+      display: grid;
+      gap: 1.5rem;
+    }
+    @media (min-width: 601px) {
+      #quiz-container {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      }
+    }
+    @media (max-width: 600px) {
+      body {
+        padding: 1rem;
+      }
+      h1 {
+        font-size: 1.5rem;
+      }
+      #quiz-container {
+        grid-template-columns: 1fr;
+      }
+    }
+    /* question card */
+    .question {
+      background: var(--primary-light);
+      padding: 1.5rem;
+      border-radius: 1rem;
+      box-shadow: var(--shadow);
+      border: 2px solid var(--primary); /* Added border with primary color */
+      transition: transform 0.2s;
+      backdrop-filter: blur(5px);
+      background: linear-gradient(
+        to right bottom,
+        rgba(255, 255, 255, 0.7),
+        rgba(213, 245, 227, 0.8)
+      );
+    }
+    .question:hover {
+      transform: translateY(-4px);
+    }
+    label {
+      display: block;
+      margin: 0.6rem 0;
+      line-height: 1.4;
+      min-height: 48px; /* tap‑target */
+      cursor: pointer;
+    }
+    input[type="radio"] {
+      margin-right: 0.5rem;
+      accent-color: var(--primary);
+    }
+    /* buttons / links */
+.button-container {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin: 2rem auto 0;
+}
+
+    button {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: block;
+      margin: 2rem auto 0;
+    }
+    button:hover {
+      background: var(--primary-dark);
+    }
+    #next-category-link {
+      display: none;
+      margin-top: 1.5rem;
+      color: var(--primary);
+      text-align: center;
+      font-weight: 600;
+    }
+    /* dark‑mode */
+  @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #111827;
+        --card: rgba(31, 41, 55, 0.8);
+        --shadow: none;
+        --primary-light: #1a3a2a;
+      }
+      .question {
+        background: linear-gradient(
+          to right bottom,
+          rgba(31, 41, 55, 0.7),
+          rgba(26, 58, 42, 0.8)
+        );
+        border: 2px solid var(--primary); /* Maintain border in dark mode */
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1 id="category-title">Quiz</h1>
+  <div id="quiz-container"></div>
+<div class="button-container">
+  <button id="prev-category-btn">Previous Category</button>
+  <button onclick="submitAnswers()">Submit Answers</button>
+  <button id="next-category-btn">Next Category</button>
+</div>
+
+<p id="message"></p>
+<a id="next-category-link" href="#"></a>
+
+ <script>
+// Use sessionStorage instead of localStorage for tracking answered categories
+document.addEventListener("DOMContentLoaded", function () {
+   function formatExponents(text) {
+        // First handle exponents with parentheses like 2^(3*2)
+        text = text.replace(/(\d+)\^\(([^)]+)\)/g, '$1<sup>$2</sup>');
+        // Then handle simple exponents like 2^3
+        text = text.replace(/(\d+)\^(\d+)/g, '$1<sup>$2</sup>');
+        return text;
+      }
+
+      const allQuestions = [
+             // Number System
+            { q: "Which of the following is an integer?", options: ["3/4", "√2", "-3", "0.75"], a: "-3", category: "number_system" },
+            { q: "The difference of two natural numbers is always a natural number.", options: ["True", "False"], a: "False", category: "number_system" },
+            { q: "Which of these numbers is an irrational number?", options: ["15", "√2", "21", "2/7"], a: "√2", category: "number_system" },
+            { q: "If a and b are two integers, a/b will be integer provided that ", options: ["a is a positive integer", "a is a negative integer", " b is different from zero", "a is 1"], a: "b is different from zero", category: "number_system" },
+            { q: "Which of these numbers is a perfect square?", options: ["50", "64", "75", "90"], a: "64", category: "number_system" },
+
+            // Fractions
+            { q: "Solve: 5/8 + 3/8", options: ["1/2", "1", "5/8", "8/8"], a: "1", category: "fractions" },
+            { q: "Simplify: 7/9 ÷ 2/3", options: ["21/18", "14/27", "7/6", "2/9"], a: "7/6", category: "fractions" },
+            { q: "Multiply: 3/4 × 2/5", options: ["6/20", "3/10", "2/15", "5/8"], a: "6/20", category: "fractions" },
+            { q: "Subtract: 7/12 - 5/12", options: ["1/6", "2/12", "1/3", "5/6"], a: "2/12", category: "fractions" },
+            { q: "Convert 5/4 into a mixed number", options: ["1 1/4", "2 1/4", "1 2/4", "1 3/4"], a: "1 1/4", category: "fractions" },
+
+            // Percentages
+            { q: "25% of x is equal to 10. Find x.", options: ["30", "40", "50", "60"], a: "40", category: "percentages" },
+            { q: "If a product is discounted by 20% and now costs $80, what was its original price?", options: ["90", "100", "110", "120"], a: "100", category: "percentages" },
+            { q: "Convert 0.6 to a percentage.", options: ["60%", "6%", "0.06%", "600%"], a: "60%", category: "percentages" },
+            { q: "What is 120% of 50?", options: ["60", "70", "75", "80"], a: "60", category: "percentages" },
+            { q: "A number increases from 40 to 50. What is the percentage increase?", options: ["20%", "25%", "10%", "30%"], a: "25%", category: "percentages" },
+
+            // Order of Operations
+            { q: "Solve: 4 + 3 × 2 - 5", options: ["5", "7", "9", "11"], a: "5", category: "order_operations" },
+            { q: "Evaluate: (6 - 2) × (5 + 3)", options: ["20", "32", "40", "48"], a: "32", category: "order_operations" },
+            { q: "Simplify: 3 × 4 + 5", options: ["17", "15", "20", "22"], a: "17", category: "order_operations" },
+            { q: "Solve: 6 ÷ 2 × (1 + 2)", options: ["6", "9", "12", "18"], a: "9", category: "order_operations" },
+            { q: "Simplify: (4 + 2) × (7 - 3)", options: ["24", "20", "18", "12"], a: "24", category: "order_operations" },
+
+            // Working with Parentheses
+            { q: "Solve: (5 + 3) × 2", options: ["16", "18", "14", "12"], a: "16", category: "parenthesis" },
+            { q: "Evaluate: (2 + 4) × (5 - 3)", options: ["12", "16", "18", "20"], a: "12", category: "parenthesis" },
+            { q: "Simplify: 3 × (2 + 5)", options: ["21", "20", "18", "15"], a: "21", category: "parenthesis" },
+            { q: "Solve: (8 ÷ 2) × 3", options: ["12", "18", "15", "10"], a: "12", category: "parenthesis" },
+            { q: "Simplify: (6 + 4) ÷ 2", options: ["3", "5", "4", "2"], a: "5", category: "parenthesis" },
+
+            // Coordinate System
+            { q: "What is the coordinate of the origin on a coordinate plane?", options: ["(0, 0)", "(1, 1)", "(0, 1)", "(1, 0)"], a: "(0, 0)", category: "coordinate_system" },
+            { q: "If a point is located at (3, 5), what is the x-coordinate?", options: ["3", "5", "8", "-3"], a: "3", category: "coordinate_system" },
+            { q: "What is the y-coordinate of the point (7, -2)?", options: ["-2", "7", "0", "2"], a: "-2", category: "coordinate_system" },
+            { q: "Which of these points lies in the third quadrant?", options: ["(-4, 5)", "(3, -2)", "(2, 3)", "(-5, -6)"], a: "(-5, -6)", category: "coordinate_system" },
+            { q: "What is the distance between the points (2, 3) and (5, 7)?", options: ["5", "6", "7", "4"], a: "5", category: "coordinate_system" },
+
+            // Exponents
+            { q: "What is 2^3?", options: ["6", "8", "4", "2"], a: "8", category: "exponents" },
+            { q: "What is (3^2) × (3^4)?", options: ["3^6", "3^8", "3^5", "6^3"], a: "3^6", category: "exponents" },
+            { q: "Simplify: 5^0", options: ["1", "5", "0", "undefined"], a: "1", category: "exponents" },
+            { q: "What is the value of 4^1?", options: ["4", "1", "16", "2"], a: "4", category: "exponents" },
+            { q: "What is 2^(3 × 2)?", options: ["8", "64", "32", "4"], a: "64", category: "exponents" },
+            
+            // Radicals
+            { q: "What is √16?", options: ["4", "8", "16", "2"], a: "4", category: "radicals" },
+            { q: "Simplify √(25 × 16)", options: ["20", "10", "30", "80"], a: "20", category: "radicals" },
+            { q: "What is √(81/9)?", options: ["3", "9", "6", "2"], a: "3", category: "radicals" },
+            { q: "What is √(49)?", options: ["5", "7", "9", "3"], a: "7", category: "radicals" },
+            { q: "Which of these is a perfect square?", options: ["14", "16", "18", "20"], a: "16", category: "radicals" },
+            
+            // Simplifying Expressions
+            { q: "Simplify: 3x + 5x", options: ["8x", "5x", "2x", "10x"], a: "8x", category: "expressions" },
+            { q: "Simplify: 4(x + 2) - 3(x + 4)", options: ["x + 2", "x + 6", "5x + 8", "2x + 5"], a: "x + 2", category: "expressions" },
+            { q: "Simplify: 6a + 2b - 3a - 4b", options: ["3a - 2b", "2a - 2b", "3a + 6b", "6a - 2b"], a: "3a - 2b", category: "expressions" },
+            { q: "Simplify: 2(3y + 5)", options: ["6y + 5", "6y + 10", "5y + 2", "2y + 5"], a: "6y + 10", category: "expressions" },
+            { q: "Simplify: 7(x + 2) - 3(x - 4)", options: ["4x + 26", "4x + 10", "7x + 14", "4x + 16"], a: "4x + 26", category: "expressions" },
+            
+// Factorization (Simple Binomials)
+            { q: "Factorize: x^2 + 5x", options: ["x(x + 5)", "x^2 + 5", "x(x + 2)", "x(x + 3)"], a: "x(x + 5)", category: "factorization" },
+            { q: "Factorize: x^2 - 9", options: ["(x + 3)(x - 3)", "(x + 5)(x - 5)", "(x + 2)(x - 3)", "(x - 2)(x + 4)"], a: "(x + 3)(x - 3)", category: "factorization" },
+            { q: "Factorize: x^2 + 4x", options: ["x(x + 4)", "(x + 2)(x + 2)", "(x + 3)(x + 1)", "(x + 5)(x - 1)"], a: "x(x + 4)", category: "factorization" },
+            { q: "Factorize: x^2 - 4x", options: ["x(x - 4)", "(x - 2)(x + 2)", "(x + 3)(x - 1)", "(x - 1)(x - 4)"], a: "x(x - 4)", category: "factorization" },
+            { q: "Factorize: x^2 + 3x", options: ["x(x + 3)", "(x + 1)(x + 3)", "(x + 5)(x - 1)", "x(x + 1)"], a: "x(x + 3)", category: "factorization" },
+
+// Logarithms
+            { q: "What is log(100) to the base 10?", options: ["2", "10", "1", "100"], a: "2", category: "logarithms" },
+            { q: "Solve for x: log(x) = 3", options: ["x = 1000", "x = 10", "x = 3", "x = 100"], a: "x = 1000", category: "logarithms" },
+            { q: "What is log(1) to the base 2?", options: ["0", "1", "2", "undefined"], a: "0", category: "logarithms" },
+            { q: "What is log(10^2) to the base 10?", options: ["1", "2", "100", "10"], a: "2", category: "logarithms" },
+            { q: "What is log(8) to the base 2?", options: ["2", "3", "8", "4"], a: "3", category: "logarithms" },
+        ];
+      const categories = [
+        "number_system", "fractions", "percentages", "order_operations",
+        "parenthesis", "coordinate_system", "exponents", "radicals",
+        "expressions", "factorization", "logarithms"
+      ];
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const category = urlParams.get("category");
+      let answersSubmitted = false;
+
+      if (!category) {
+        document.getElementById("quiz-container").innerHTML = "<p>Error: No category selected.</p>";
+        return;
+      }
+
+      const categoryQuestions = allQuestions.filter(q => q.category === category);
+      if (categoryQuestions.length === 0) {
+        document.getElementById("quiz-container").innerHTML = "<p>No questions found for this category.</p>";
+        return;
+      }
+
+      document.getElementById("category-title").textContent = `Category: ${category.replace("_", " ")}`;
+      const container = document.getElementById("quiz-container");
+      
+      categoryQuestions.forEach((q, i) => {
+        const div = document.createElement("div");
+        div.classList.add("question");
+        // Format question and options with superscripts
+        const formattedQuestion = formatExponents(q.q);
+        const formattedOptions = q.options.map(opt => formatExponents(opt));
+        div.innerHTML = `<p>${formattedQuestion}</p>` + formattedOptions.map(opt =>
+          `<label><input type="radio" name="q${i}" value="${opt.replace(/<[^>]*>/g, '')}"> ${opt}</label>`
+        ).join("");
+        container.appendChild(div);
+      });
+
+      // Check if this category was already answered in this session
+      const sessionScore = sessionStorage.getItem(category);
+      if (sessionScore !== null) {
+        answersSubmitted = true;
+        if (confirm("You have already answered this category in this session. Do you want to change your answers?")) {
+          answersSubmitted = false;
+          document.getElementById("message").textContent = "You can change your answers.";
+        } else {
+          document.getElementById("message").textContent = "Your previous answers are saved for this session.";
+        }
+      }
+
+      window.submitAnswers = () => {
+        let score = 0;
+        categoryQuestions.forEach((q, i) => {
+          const selected = document.querySelector(`input[name="q${i}"]:checked`);
+          if (selected && selected.value === q.a) {
+            score++;
+          }
+        });
+        localStorage.setItem(category, score); // Permanent storage
+        sessionStorage.setItem(category, score); // Session storage
+        answersSubmitted = true;
+        document.getElementById("message").textContent = "Category completed. Your answers have been recorded.";
+      };
+
+      function isAnyQuestionAnswered() {
+        return categoryQuestions.some((q, i) => 
+          document.querySelector(`input[name="q${i}"]:checked`)
+        );
+      }
+
+      const nextBtn = document.getElementById("next-category-btn");
+      const prevBtn = document.getElementById("prev-category-btn");
+      const currentIndex = categories.indexOf(category);
+
+      // Previous Button Setup
+      prevBtn.textContent = "Previous Category";
+      prevBtn.onclick = () => {
+        if (!answersSubmitted && isAnyQuestionAnswered()) {
+          if (confirm("You have unanswered questions. Save your answers before leaving?")) {
+            submitAnswers();
+          }
+        }
+        const prevCategory = categories[currentIndex - 1];
+        window.location.href = `category.html?category=${prevCategory}`;
+      };
+
+      // Next Button Setup - handles both Next Category and See Results
+      if (currentIndex < categories.length - 1) {
+        nextBtn.textContent = "Next Category";
+        nextBtn.onclick = () => {
+          if (!answersSubmitted && isAnyQuestionAnswered()) {
+            if (confirm("You have unanswered questions. Save your answers before leaving?")) {
+              submitAnswers();
+            }
+          }
+          const nextCategory = categories[currentIndex + 1];
+          window.location.href = `category.html?category=${nextCategory}`;
+        };
+      } else {
+        nextBtn.textContent = "See Results";
+        nextBtn.onclick = () => {
+          if (!answersSubmitted && isAnyQuestionAnswered()) {
+            if (confirm("You have unanswered questions. Save your answers before viewing results?")) {
+              submitAnswers();
+            }
+          }
+          window.location.href = "results.html";
+        };
+      }
+    });
+
+    // Remove the beforeunload event listener that was clearing sessionStorage
+</script>
+</body>
+</html>
